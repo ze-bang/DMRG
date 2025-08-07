@@ -224,9 +224,6 @@ DMRG_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 DMRG_SOURCE_DIR:STATIC=/home/pc_linux/DMRG
 
-//The directory containing a CMake configuration file for ITensor.
-ITensor_DIR:PATH=ITensor_DIR-NOTFOUND
-
 
 ########################
 # INTERNAL cache entries
