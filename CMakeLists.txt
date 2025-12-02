@@ -1,24 +1,122 @@
-cmake_minimum_required(VERSION 3.10)
-project(DMRG)
+cmake_minimum_required(VERSION 3.14)
+project(iDMRG VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Define the path to the ITensor directory
-set(ITENSOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/itensor)
+# Build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 
-# Add the executable
-add_executable(dmrg src/main.cpp)
+# Compiler optimization flags
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -ffast-math")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra -Wpedantic")
 
-# Add include directories for your project and for ITensor
-target_include_directories(dmrg PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+# Options
+option(USE_OPENMP "Enable OpenMP parallelization" ON)
+option(USE_MKL "Use Intel MKL for BLAS/LAPACK" OFF)
+option(BUILD_EXAMPLES "Build example programs" ON)
+option(BUILD_TESTS "Build test programs" OFF)
+
+# Find ITensor
+# Users should set ITENSOR_DIR to point to their ITensor installation
+set(ITENSOR_DIR "$ENV{HOME}/software/itensor" CACHE PATH "Path to ITensor library")
+
+if(NOT EXISTS "${ITENSOR_DIR}/itensor")
+    message(WARNING "ITensor not found at ${ITENSOR_DIR}. Please set ITENSOR_DIR correctly.")
+endif()
+
+# Include directories
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
     ${ITENSOR_DIR}
 )
 
-# Link ITensor library and its dependencies to the executable
-target_link_libraries(dmrg 
-    ${ITENSOR_DIR}/lib/libitensor.a
-    -llapack
-    -lblas
+# Link directories
+link_directories(${ITENSOR_DIR}/lib)
+
+# Find OpenMP
+if(USE_OPENMP)
+    find_package(OpenMP)
+    if(OpenMP_CXX_FOUND)
+        message(STATUS "OpenMP found")
+    endif()
+endif()
+
+# Find BLAS/LAPACK
+if(USE_MKL)
+    set(BLA_VENDOR Intel10_64lp)
+endif()
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+
+# Header-only library
+add_library(idmrg INTERFACE)
+target_include_directories(idmrg INTERFACE 
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
+
+# Create examples
+if(BUILD_EXAMPLES)
+    # 1D Heisenberg chain example
+    add_executable(heisenberg_chain examples/heisenberg_chain.cc)
+    target_link_libraries(heisenberg_chain 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(heisenberg_chain OpenMP::OpenMP_CXX)
+    endif()
+
+    # 2D Hubbard model example
+    add_executable(hubbard_2d examples/hubbard_2d.cc)
+    target_link_libraries(hubbard_2d 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(hubbard_2d OpenMP::OpenMP_CXX)
+    endif()
+
+    # Generic lattice example
+    add_executable(generic_lattice examples/generic_lattice.cc)
+    target_link_libraries(generic_lattice 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(generic_lattice OpenMP::OpenMP_CXX)
+    endif()
+endif()
+
+# Install
+install(DIRECTORY include/ DESTINATION include)
+install(TARGETS idmrg EXPORT idmrgTargets)
+install(EXPORT idmrgTargets
+    FILE idmrgTargets.cmake
+    NAMESPACE idmrg::
+    DESTINATION lib/cmake/idmrg
+)
+
+# Print configuration summary
+message(STATUS "")
+message(STATUS "========== iDMRG Configuration ==========")
+message(STATUS "Build type:        ${CMAKE_BUILD_TYPE}")
+message(STATUS "ITensor directory: ${ITENSOR_DIR}")
+message(STATUS "OpenMP:            ${USE_OPENMP}")
+message(STATUS "Intel MKL:         ${USE_MKL}")
+message(STATUS "Build examples:    ${BUILD_EXAMPLES}")
+message(STATUS "==========================================")
+message(STATUS "")
