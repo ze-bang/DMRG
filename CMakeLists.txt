@@ -62,7 +62,7 @@ target_include_directories(idmrg INTERFACE
 # Create examples
 if(BUILD_EXAMPLES)
     # 1D Heisenberg chain example
-    add_executable(heisenberg_chain examples/heisenberg_chain.cc)
+    add_executable(heisenberg_chain examples/heisenberg_chain.cpp)
     target_link_libraries(heisenberg_chain 
         idmrg 
         itensor 
@@ -75,7 +75,7 @@ if(BUILD_EXAMPLES)
     endif()
 
     # 2D Hubbard model example
-    add_executable(hubbard_2d examples/hubbard_2d.cc)
+    add_executable(hubbard_2d examples/hubbard_2d.cpp)
     target_link_libraries(hubbard_2d 
         idmrg 
         itensor 
@@ -88,7 +88,7 @@ if(BUILD_EXAMPLES)
     endif()
 
     # Generic lattice example
-    add_executable(generic_lattice examples/generic_lattice.cc)
+    add_executable(generic_lattice examples/generic_lattice.cpp)
     target_link_libraries(generic_lattice 
         idmrg 
         itensor 
@@ -98,6 +98,45 @@ if(BUILD_EXAMPLES)
     )
     if(OpenMP_CXX_FOUND)
         target_link_libraries(generic_lattice OpenMP::OpenMP_CXX)
+    endif()
+
+    # Anisotropic triangular lattice example
+    add_executable(anisotropic_triangular examples/anisotropic_triangular.cpp)
+    target_link_libraries(anisotropic_triangular 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(anisotropic_triangular OpenMP::OpenMP_CXX)
+    endif()
+
+    # Structure factor calculation example
+    add_executable(structure_factor examples/structure_factor.cpp)
+    target_link_libraries(structure_factor 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(structure_factor OpenMP::OpenMP_CXX)
+    endif()
+
+    # Benchmark SSSF example
+    add_executable(benchmark_sssf examples/benchmark_sssf.cpp)
+    target_link_libraries(benchmark_sssf 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(benchmark_sssf OpenMP::OpenMP_CXX)
     endif()
 endif()
 

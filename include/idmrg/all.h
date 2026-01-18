@@ -26,6 +26,10 @@
 #include "idmrg/models/heisenberg.h"
 #include "idmrg/models/hubbard.h"
 #include "idmrg/models/tj.h"
+#include "idmrg/models/anisotropic_triangular.h"
+
+// Observables
+#include "idmrg/structure_factor.h"
 
 // Utilities
 #include "idmrg/util/timer.h"
