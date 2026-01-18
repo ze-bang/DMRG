@@ -13,7 +13,9 @@ A high-performance implementation of the infinite Density Matrix Renormalization
 - **High Performance**:
   - ITensor C++17 backend with optimized tensor contractions
   - OpenMP parallelization support
+  - **AMD AOCL support** (BLIS + libFLAME for AMD CPUs)
   - Optional Intel MKL integration
+  - **GPU Acceleration** (NVIDIA CUDA / AMD ROCm)
   - Memory-efficient algorithms for large bond dimensions
 - **Advanced Features**:
   - Quantum number conservation (U(1), SU(2))
@@ -26,7 +28,11 @@ A high-performance implementation of the infinite Density Matrix Renormalization
 - C++17 compatible compiler (GCC 7+, Clang 6+)
 - CMake 3.14+
 - ITensor v3 library
-- BLAS/LAPACK libraries
+- BLAS/LAPACK libraries (System, AMD AOCL, or Intel MKL)
+
+### Optional (for GPU acceleration)
+- **NVIDIA**: CUDA Toolkit 11.0+ with cuBLAS and cuSOLVER
+- **AMD**: ROCm 5.0+ with rocBLAS and rocSOLVER
 
 ## Installation
 
@@ -44,6 +50,40 @@ make -j4
 mkdir build && cd build
 cmake .. -DITENSOR_DIR=/path/to/itensor
 make -j4
+```
+
+### Building with AMD AOCL (Recommended for AMD CPUs)
+
+AMD AOCL provides optimized BLAS (BLIS) and LAPACK (libFLAME) for AMD processors.
+
+1. Install AOCL from https://developer.amd.com/amd-aocl/
+```bash
+# Example: Extract to /opt/AMD/aocl
+tar -xf aocl-linux-*.tar.gz -C /opt/AMD/
+source /opt/AMD/aocl/setenv_AOCL.sh
+```
+
+2. Build with AOCL:
+```bash
+./build.sh --aocl --aocl-root /opt/AMD/aocl
+# Or with cmake directly:
+cmake .. -DUSE_AOCL=ON -DAOCL_ROOT=/opt/AMD/aocl
+```
+
+### Building with GPU Support
+
+#### NVIDIA CUDA:
+```bash
+./build.sh --aocl --cuda
+# Or:
+cmake .. -DUSE_AOCL=ON -DUSE_CUDA=ON
+```
+
+#### AMD ROCm/HIP:
+```bash
+./build.sh --aocl --hip
+# Or:
+cmake .. -DUSE_AOCL=ON -DUSE_HIP=ON
 ```
 
 ## Quick Start
@@ -186,6 +226,28 @@ auto result = idmrg(psi, H, last_result, sweeps, {"OutputLevel", 1});
 3. **OpenMP**: Set `OMP_NUM_THREADS` for parallel tensor operations
 4. **Memory**: Use `WriteDim` option for large bond dimensions
 5. **2D Systems**: Use appropriate cylinder width (typically 4-8 for cylinders)
+
+### BLAS Backend Performance
+
+| Backend | Best For | Notes |
+|---------|----------|-------|
+| **AMD AOCL** | AMD Zen CPUs | 15-30% faster on Ryzen/EPYC |
+| **Intel MKL** | Intel CPUs | Best for Intel processors |
+| **OpenBLAS** | General | Good fallback option |
+
+### GPU Acceleration
+
+GPU acceleration is most beneficial for:
+- Large bond dimensions (χ > 1000)
+- 2D systems with wide cylinders (Ly > 4)
+- Structure factor calculations
+
+Current GPU-accelerated operations:
+- SVD decomposition (cuSOLVER/rocSOLVER)
+- Matrix-matrix multiplication (cuBLAS/rocBLAS)
+- Tensor contractions
+
+**Note**: GPU support requires tensors to be explicitly transferred to GPU memory. Full integration with ITensor is ongoing.
 
 ## References
 

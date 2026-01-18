@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
             // <Sz_i Sz_j>
             psi.position(site_i);
             auto Cij = psi(site_i) * op(sites, "Sz", site_i);
-            Cij *= dag(prime(psi(site_i), "Site", "Link"));
+            Cij *= dag(prime(prime(psi(site_i), "Site"), "Link"));
             
             for (int k = site_i + 1; k < site_j; ++k) {
                 Cij *= psi(k);
@@ -165,14 +165,14 @@ int main(int argc, char* argv[]) {
             }
             
             Cij *= psi(site_j) * op(sites, "Sz", site_j);
-            Cij *= dag(prime(psi(site_j), "Site", "Link"));
+            Cij *= dag(prime(prime(psi(site_j), "Site"), "Link"));
             
             Czz[r] = elt(Cij);
             
             // <S+_i S-_j>
             psi.position(site_i);
             auto Cpm_ij = psi(site_i) * op(sites, "S+", site_i);
-            Cpm_ij *= dag(prime(psi(site_i), "Site", "Link"));
+            Cpm_ij *= dag(prime(prime(psi(site_i), "Site"), "Link"));
             
             for (int k = site_i + 1; k < site_j; ++k) {
                 Cpm_ij *= psi(k);
@@ -180,14 +180,14 @@ int main(int argc, char* argv[]) {
             }
             
             Cpm_ij *= psi(site_j) * op(sites, "S-", site_j);
-            Cpm_ij *= dag(prime(psi(site_j), "Site", "Link"));
+            Cpm_ij *= dag(prime(prime(psi(site_j), "Site"), "Link"));
             
             Real SpSm = elt(Cpm_ij);
             
             // <S-_i S+_j>
             psi.position(site_i);
             auto Cmp_ij = psi(site_i) * op(sites, "S-", site_i);
-            Cmp_ij *= dag(prime(psi(site_i), "Site", "Link"));
+            Cmp_ij *= dag(prime(prime(psi(site_i), "Site"), "Link"));
             
             for (int k = site_i + 1; k < site_j; ++k) {
                 Cmp_ij *= psi(k);
@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
             }
             
             Cmp_ij *= psi(site_j) * op(sites, "S+", site_j);
-            Cmp_ij *= dag(prime(psi(site_j), "Site", "Link"));
+            Cmp_ij *= dag(prime(prime(psi(site_j), "Site"), "Link"));
             
             Real SmSp = elt(Cmp_ij);
             

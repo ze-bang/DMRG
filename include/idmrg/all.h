@@ -35,4 +35,7 @@
 #include "idmrg/util/timer.h"
 #include "idmrg/util/io.h"
 
+// GPU acceleration (if available)
+#include "idmrg/gpu.h"
+
 #endif // IDMRG_ALL_H

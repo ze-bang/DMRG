@@ -20,6 +20,7 @@
 //
 
 #include "idmrg/all.h"
+#include <random>
 
 using namespace itensor;
 using namespace idmrg;
@@ -218,15 +219,17 @@ int main(int argc, char* argv[]) {
     auto sweeps = Sweeps(maxSweeps);
     
     // Gradual increase in bond dimension
+    // Start with smaller dimensions for stability
     if (maxDim >= 1000) {
-        sweeps.maxdim() = 100, 200, 400, 600, 800, 1000, maxDim;
+        sweeps.maxdim() = 50, 100, 200, 400, 600, 800, 1000, maxDim;
     } else {
-        sweeps.maxdim() = 50, 100, 200, 400, std::min(600, maxDim), maxDim;
+        sweeps.maxdim() = 20, 50, 100, 200, 400, std::min(600, maxDim), maxDim;
     }
     
-    sweeps.cutoff() = 1E-8, 1E-10, 1E-12;
-    sweeps.niter() = 4, 3, 2;
-    sweeps.noise() = 1E-6, 1E-7, 1E-8, 1E-9, 0;
+    sweeps.cutoff() = 1E-6, 1E-8, 1E-10, 1E-12;
+    sweeps.niter() = 6, 5, 4, 3, 2;
+    // CRITICAL: Much larger noise to escape local minima (Néel state)
+    sweeps.noise() = 1E-3, 1E-4, 1E-5, 1E-6, 1E-7, 1E-8, 0;
     
     println("DMRG sweep schedule:");
     println(sweeps);
@@ -236,19 +239,29 @@ int main(int argc, char* argv[]) {
     // Initialize MPS
     // =========================================
     
-    println("Initializing MPS with Néel state...");
+    println("Initializing MPS with randomized state...");
     
-    // Start with checkerboard Néel pattern
+    // Start with slightly randomized state instead of perfect Néel
+    // Perfect Néel can get stuck as a local minimum
     auto state = InitState(sites);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    
     for (int i = 1; i <= N; ++i) {
         auto [x, y] = lattice.siteCoords(i);
-        if ((x + y) % 2 == 0) {
-            state.set(i, "Up");
-        } else {
-            state.set(i, "Dn");
+        // Start with mostly Néel but add some randomness
+        bool neel_up = ((x + y) % 2 == 0);
+        double p = dis(gen);
+        if (p < 0.1) {  // 10% chance to flip from Néel pattern
+            neel_up = !neel_up;
         }
+        state.set(i, neel_up ? "Up" : "Dn");
     }
     auto psi = MPS(state);
+    
+    // Add quantum fluctuations by randomizing the MPS tensors
+    psi = randomMPS(sites, 4);  // Start with random MPS at bond dim 4
     printfln("Initial MPS bond dimension: %d\n", maxLinkDim(psi));
     
     // =========================================
@@ -260,7 +273,12 @@ int main(int argc, char* argv[]) {
     Timer timer;
     timer.start();
     
-    auto result = idmrg::idmrg(psi, H, sweeps, {"OutputLevel", 1});
+    // Use more unit cell sweeps for convergence
+    // Note: Randomize=true can cause crashes, rely on random init + noise instead
+    auto result = idmrg::idmrg(psi, H, sweeps, {
+        "OutputLevel", 1,
+        "NUCSweeps", 10           // More sweeps within each iDMRG step
+    });
     
     timer.stop();
     
