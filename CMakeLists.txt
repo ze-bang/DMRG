@@ -138,6 +138,19 @@ if(BUILD_EXAMPLES)
     if(OpenMP_CXX_FOUND)
         target_link_libraries(benchmark_sssf OpenMP::OpenMP_CXX)
     endif()
+
+    # J1-J2 Heisenberg model on square lattice benchmark
+    add_executable(heisenberg_square_j1j2 examples/heisenberg_square_j1j2.cpp)
+    target_link_libraries(heisenberg_square_j1j2 
+        idmrg 
+        itensor 
+        ${LAPACK_LIBRARIES} 
+        ${BLAS_LIBRARIES}
+        pthread
+    )
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(heisenberg_square_j1j2 OpenMP::OpenMP_CXX)
+    endif()
 endif()
 
 # Install

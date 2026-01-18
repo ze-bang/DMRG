@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     println("Starting iDMRG...");
     println("");
     
-    auto result = idmrg(psi, H, sweeps, {"OutputLevel", 1});
+    auto result = idmrg::idmrg(psi, H, sweeps, {"OutputLevel", 1});
     
     println("");
     println("=============================================");

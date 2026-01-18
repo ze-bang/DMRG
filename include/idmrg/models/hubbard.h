@@ -65,9 +65,8 @@ private:
     AutoMPO buildAutoMPO() const {
         AutoMPO ampo(sites_);
         
-        // Determine site type (Electron or Hubbard)
-        bool isHubbardSite = (sites_.siteType(1) == "Hubbard" ||
-                              sites_.siteType(1) == "ElecK");
+        // Assume Hubbard/Electron site type (siteType() removed in ITensor v3)
+        bool isHubbardSite = true;
         
         // Hopping terms
         for (const auto& bond : lattice_.bonds()) {

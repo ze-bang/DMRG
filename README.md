@@ -112,11 +112,37 @@ int main() {
 │           ├── timer.h          # Performance timing
 │           └── io.h             # I/O utilities
 ├── examples/
-│   ├── heisenberg_chain.cc      # 1D Heisenberg example
-│   ├── hubbard_2d.cc            # 2D Hubbard example
-│   └── generic_lattice.cc       # Custom lattice example
+│   ├── heisenberg_chain.cpp     # 1D Heisenberg example
+│   ├── hubbard_2d.cpp           # 2D Hubbard example
+│   ├── heisenberg_square_j1j2.cpp  # J1-J2 model benchmark
+│   └── generic_lattice.cpp      # Custom lattice example
 └── CMakeLists.txt
 ```
+
+## Benchmarks
+
+### J1-J2 Heisenberg Model on Square Lattice
+
+A well-known frustrated quantum magnet with a rich phase diagram:
+
+$$H = J_1 \sum_{\langle i,j \rangle} \mathbf{S}_i \cdot \mathbf{S}_j + J_2 \sum_{\langle\langle i,j \rangle\rangle} \mathbf{S}_i \cdot \mathbf{S}_j$$
+
+Run the benchmark:
+```bash
+# Single calculation at J2/J1 = 0.5
+./build/examples/heisenberg_square_j1j2 --Ly 4 --J2 0.5
+
+# Full phase diagram scan
+python benchmark_j1j2.py --Ly 4 --maxdim 800 --j2_min 0.0 --j2_max 0.8
+```
+
+**Reference energies per site (J1 = 1):**
+| J2/J1 | Phase | E/N (approx) |
+|-------|-------|--------------|
+| 0.0 | Néel AFM | -0.6694 |
+| 0.4 | Frustrated | -0.540 |
+| 0.5 | Frustrated | -0.495 |
+| 0.6+ | Stripe AFM | -0.465 |
 
 ## Advanced Usage
 

@@ -90,8 +90,10 @@ int main(int argc, char* argv[]) {
     // Verify particle number
     int Nup = 0, Ndn = 0;
     for (int i = 1; i <= N; ++i) {
-        Nup += static_cast<int>(elt(psi, op(sites, "Nup", i)));
-        Ndn += static_cast<int>(elt(psi, op(sites, "Ndn", i)));
+        psi.position(i);
+        auto phi = psi(i);
+        Nup += static_cast<int>(elt(dag(prime(phi, "Site")) * op(sites, "Nup", i) * phi));
+        Ndn += static_cast<int>(elt(dag(prime(phi, "Site")) * op(sites, "Ndn", i) * phi));
     }
     printfln("\nInitial state: N_up = %d, N_dn = %d, N_total = %d", Nup, Ndn, Nup + Ndn);
     printfln("Filling: %.2f\n", static_cast<double>(Nup + Ndn) / N);
@@ -102,7 +104,7 @@ int main(int argc, char* argv[]) {
     
     // Run iDMRG
     printfln("Starting iDMRG calculation...\n");
-    auto result = idmrg(psi, H, sweeps, {"OutputLevel", 1});
+    auto result = idmrg::idmrg(psi, H, sweeps, {"OutputLevel", 1});
     
     timer.stop();
     

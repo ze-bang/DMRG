@@ -30,9 +30,9 @@ int main(int argc, char* argv[]) {
     printfln("Unit cell size: %d sites", Nuc);
     printfln("Working with %d sites (2 unit cells)\n", N);
     
-    // Create spin-1 sites with quantum number conservation
-    // Options: SpinHalf, SpinOne, SpinTwo, etc.
-    auto sites = SpinOne(N, {"ConserveQNs=", true});
+    // Create spin-1 sites without quantum number conservation
+    // (QN conservation causes issues with iDMRG tensor mixing)
+    auto sites = SpinOne(N, {"ConserveQNs=", false});
     
     // Build Heisenberg Hamiltonian for infinite system
     // H = J Σ (Sz_i Sz_j + 0.5 S+_i S-_j + 0.5 S-_i S+_j)
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
     
     // Run iDMRG
     printfln("Starting iDMRG calculation...\n");
-    auto result = idmrg(psi, H, sweeps, {"OutputLevel", 1});
+    auto result = idmrg::idmrg(psi, H, sweeps, {"OutputLevel", 1});
     
     timer.stop();
     
@@ -117,15 +117,16 @@ int main(int argc, char* argv[]) {
         int n = (j - 2) % Nuc + 1;  // Map to unit cell site
         
         auto ui = uniqueIndex(psi(n), lcorr, "Link");
-        auto val = elt(dag(prime(psi(n))) * lcorr * 
-                      prime(psi(n), ui) * op(sites, "Sz", n));
+        auto temp = prime(psi(n));
+        auto val = elt(dag(temp) * lcorr * 
+                      noPrime(prime(psi(n), ui)) * op(sites, "Sz", n));
         
         printfln("%3d   %.12f", j, val);
         corr_values.push_back(val);
         
         // Update correlation tensor
         lcorr *= psi(n);
-        lcorr *= dag(prime(psi(n), "Link"));
+        lcorr *= dag(prime(psi(n)));
     }
     
     // Save results

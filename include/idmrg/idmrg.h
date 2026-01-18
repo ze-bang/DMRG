@@ -360,7 +360,7 @@ idmrg(MPS& psi,
             }
             wpsi.ref(Nuc + 1) *= lastV;
             wpsi.ref(0) = D;
-            writeToFile(format("psi_%d", sw), wpsi);
+            writeToFile(tinyformat::format("psi_%d", sw), wpsi);
         }
         
         psi.ref(Nuc + 1) *= lastV;

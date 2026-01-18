@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
     Timer timer;
     timer.start();
     
-    auto result = idmrg(psi, H, sweeps, {"OutputLevel", 1});
+    auto result = idmrg::idmrg(psi, H, sweeps, {"OutputLevel", 1});
     
     timer.stop();
     
@@ -215,7 +215,7 @@ int main(int argc, char* argv[]) {
     timer.reset();
     timer.start();
     
-    auto result_tri = idmrg(psi_tri, H_tri, sweeps, {"OutputLevel", 1});
+    auto result_tri = idmrg::idmrg(psi_tri, H_tri, sweeps, {"OutputLevel", 1});
     
     timer.stop();
     
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
     timer.reset();
     timer.start();
     
-    auto result_hc = idmrg(psi_hc, H_hc, sweeps, {"OutputLevel", 1});
+    auto result_hc = idmrg::idmrg(psi_hc, H_hc, sweeps, {"OutputLevel", 1});
     
     timer.stop();
     

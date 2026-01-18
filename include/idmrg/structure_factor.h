@@ -65,7 +65,7 @@ inline Cplx correlationFunction(MPS const& psi,
     // Contract from site i to site j
     auto O1 = op(sites, op1, i);
     auto C = psi_copy(i) * O1;
-    C *= dag(prime(psi_copy(i), "Site", "Link"));
+    C *= dag(prime(psi_copy(i)));
     
     for (int k = i + 1; k < j; ++k) {
         C *= psi_copy(k);
@@ -75,7 +75,7 @@ inline Cplx correlationFunction(MPS const& psi,
     auto O2 = op(sites, op2, j);
     C *= psi_copy(j);
     C *= O2;
-    C *= dag(prime(psi_copy(j), "Site", "Link"));
+    C *= dag(prime(psi_copy(j)));
     
     return eltC(C);
 }
