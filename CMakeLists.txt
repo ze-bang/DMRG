@@ -304,6 +304,22 @@ if(BUILD_EXAMPLES)
     # 2D Heisenberg on square lattice cylinder (finite DMRG)
     add_executable(heisenberg_square_finite examples/heisenberg_square_finite.cpp)
     link_idmrg_libraries(heisenberg_square_finite)
+
+    # GPU-accelerated 2D Heisenberg (if GPU support enabled)
+    if(USE_CUDA OR USE_HIP)
+        add_executable(heisenberg_gpu examples/heisenberg_gpu.cpp)
+        link_idmrg_libraries(heisenberg_gpu)
+        if(USE_CUDA)
+            target_include_directories(heisenberg_gpu PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+        endif()
+        
+        # GPU SVD benchmark
+        add_executable(benchmark_gpu_svd examples/benchmark_gpu_svd.cpp)
+        link_idmrg_libraries(benchmark_gpu_svd)
+        if(USE_CUDA)
+            target_include_directories(benchmark_gpu_svd PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+        endif()
+    endif()
 endif()
 
 # Install
