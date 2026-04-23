@@ -138,6 +138,8 @@ ignore = [
     "SIM108",   # ternary vs if/else — readability over compactness
     "N802",     # `L` (chain length) is canonical in DMRG/condensed-matter code
     "UP007",    # `Union[A, B]` accepted alongside `A | B` for runtime-checked APIs
+    "UP038",    # `isinstance(x, (A, B))` is faster at runtime than `A | B` (rule
+                # is deprecated upstream for exactly this reason in newer Ruff)
 ]
 
 [tool.ruff.lint.per-file-ignores]

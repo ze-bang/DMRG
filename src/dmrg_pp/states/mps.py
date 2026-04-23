@@ -24,7 +24,13 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from enum import Enum
-from typing import Self
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # ``typing.Self`` was added in Python 3.11; we only need it for type
+    # checking, so keep the import behind ``TYPE_CHECKING`` to stay
+    # compatible with Python 3.10.
+    from typing import Self
 
 import numpy as np
 from numpy.typing import NDArray
