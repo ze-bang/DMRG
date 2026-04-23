@@ -1,0 +1,158 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dmrg_pp"
+version = "0.1.0"
+description = "DMRG++: a production-grade Density Matrix Renormalization Group library for 1D and quasi-1D quantum lattice models."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "DMRG++ Contributors" }]
+keywords = [
+    "DMRG",
+    "tensor-networks",
+    "MPS",
+    "MPO",
+    "quantum",
+    "condensed-matter",
+    "many-body",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "h5py>=3.9",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "rich>=13.7",
+    "opt_einsum>=3.3",
+    "threadpoolctl>=3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-xdist>=3.5",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "hypothesis>=6.100",
+]
+docs = [
+    "sphinx>=7.3",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=3.0",
+]
+
+[project.scripts]
+dmrg = "dmrg_pp.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/dmrg-pp/dmrg_pp"
+Documentation = "https://dmrg-pp.readthedocs.io"
+Repository = "https://github.com/dmrg-pp/dmrg_pp"
+Issues = "https://github.com/dmrg-pp/dmrg_pp/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"dmrg_pp" = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests against exact diagonalization",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:h5py.*",
+]
+
+[tool.coverage.run]
+source = ["src/dmrg_pp"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle / pyflakes
+    "I",             # isort
+    "B",             # bugbear
+    "UP",            # pyupgrade
+    "N",             # pep8-naming
+    "SIM",           # simplify
+    "RUF",           # ruff-specific
+    "NPY",           # numpy
+    "PERF",          # perflint
+]
+ignore = [
+    "E501",     # line length handled by formatter
+    "N803",     # allow physics names like `H`, `Sz`
+    "N806",     # ditto for local variables
+    "B008",     # function call in default arg (typer pattern)
+    "RUF001",   # ambiguous unicode chars in strings — unavoidable in a physics
+    "RUF002",   # ditto in docstrings (Greek letters, ×, –, …)
+    "RUF003",   # ditto in comments
+    "PERF401",  # list.extend — readability outweighs micro-perf for our hot loops
+    "PERF203",  # try/except in a loop is fine for fallbacks
+    "B007",     # unused loop variables are sometimes intentional
+    "SIM108",   # ternary vs if/else — readability over compactness
+    "N802",     # `L` (chain length) is canonical in DMRG/condensed-matter code
+    "UP007",    # `Union[A, B]` accepted alongside `A | B` for runtime-checked APIs
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["N802", "N803", "N806"]
+"examples/**" = ["N802", "N803", "N806", "B007"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+files = ["src/dmrg_pp"]

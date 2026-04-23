@@ -1,0 +1,13 @@
+name: heisenberg_L40
+model:
+  kind: heisenberg
+  L: 40
+  Jxy: 1.0
+  Jz: 1.0
+runtime:
+  n_sweeps: 12
+  max_bond: [16, 32, 64, 128, 128, 256]
+  cutoff: 1.0e-10
+  e_tol: 1.0e-9
+  seed: 2026
+output: runs/heisenberg_L40.h5
